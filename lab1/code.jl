@@ -1,9 +1,4 @@
 using Random, Distributions, LinearAlgebra, Statistics, Plots
-gr()
-
-"""
-    TODO add a legend to each plot!
-"""
 
 struct Measurement <: Number
     val::Float64
@@ -20,6 +15,14 @@ end
 value(m::Measurement) = m.val
 
 uncertainty(m::Measurement) = m.err
+
+@recipe function f(::Type{T}, m::T) where T <: AbstractArray{<:Measurement}
+    if !(get(plotattributes, :seriestype, :path) in [:contour, :contourf, :contour3d, :heatmap, :surface, :wireframe, :image])
+        error_sym = Symbol(plotattributes[:letter], :error)
+        plotattributes[error_sym] = uncertainty.(m)
+    end
+    value.(m)
+end
 
 function sampleHypercube(pointsNo, dimensionsNo)
     unifrom = Uniform(-1, 1)
@@ -62,7 +65,15 @@ function plotPointsDistribution(dimensions, pointsNo, retry = 10)
     measurements = [ measure(dimensionsNo) for dimensionsNo = dimensions ]
     ys = reduce(vcat, measurements)
 
-    plot(scatter(dimensions, ys))
+    plotly()
+    plot(plot(dimensions, ys, 
+        title = "Hypercube density distribution", 
+        label = ["Inside a hypersphere" "Outside a hypersphere"],
+        xlabel = "Number of dimensions",
+        ylabel = "Number of points",
+        legend = :bottomleft))
+
+    savefig("hypercube_density.png")
 end
 
 """
@@ -96,7 +107,14 @@ function plotMeanDistancesBetweenTwoPoints(dimensions, pointsNo, retry = 10)
     measurements = [ measureAverage(dimensionsNo) for dimensionsNo = dimensions ]
     ys = reduce(vcat, measurements)
 
-    plot(scatter(dimensions, ys))
+    plotly()
+    plot(scatter(dimensions, ys, 
+        title="Mean Distance Between Points in a Hypercube", 
+        label=["mean" "standard deviation"],
+        xlabel = "Number of dimensions",
+        legend = :right
+    ))
+    savefig("hypercube_distances.png")
 end
 
 """
@@ -106,7 +124,7 @@ function plotAngleDistributions(pointsNo, dimensionsNo, drawsNo)
     points = sampleHypercube(pointsNo, dimensionsNo)
 
     function angle(v1, v2)
-        return acos(dot(v1, v2) / (norm(v1) * norm(v2)))
+        return acos(dot(v1, v2) / (norm(v1) * norm(v2))) * 180 / MathConstants.pi
     end
 
     function drawPoints()
@@ -132,12 +150,26 @@ function plotAngleDistributions(pointsNo, dimensionsNo, drawsNo)
     end
 
     angles = [ draw() for i = 1:drawsNo ]
-    histogram(angles, bins = :sturges)
+
+    gr()
+    plot(histogram(angles, bins = 20,
+        title="Distribution of angles in $dimensionsNo D", 
+        legend = false, 
+        colorbar = true,
+        xlabel = "Angle [degree]",
+        ylabel = "Number of draws"
+        ))
+    savefig("hypercube_angles_$(dimensionsNo)D.png")
 end
 
 
 begin
-    plotPointsDistribution(2:10, 1000)
-    plotMeanDistancesBetweenTwoPoints(2:50, 100)
-    plotAngleDistributions(1000, 8, 1000)
+    # plotPointsDistribution(2:10, 10000)
+    plotMeanDistancesBetweenTwoPoints(2:10, 500)
+    # plotAngleDistributions(1000, 2, 10000)
+    # plotAngleDistributions(1000, 3, 10000)
+    # plotAngleDistributions(1000, 5, 10000)
+    # plotAngleDistributions(1000, 8, 10000)
+    # plotAngleDistributions(1000, 100, 10000)
+    # plotAngleDistributions(1000, 1000, 10000)
 end
