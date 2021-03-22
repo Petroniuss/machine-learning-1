@@ -17,16 +17,14 @@ niż środek sześcianu (hiperkula wpisana w ten sześcian).
 ## Punkt 2
 Tutaj będziemy badać odległości między punktami w hipersześcianie.
 
-![img](./plots/hypercube_distances.png)
-Znowu kazde doświadczenie powtórzyłem 10 razy, losowałem 100 punktów.
+| |  |
+|:-------------------------:|:-------------------------:|
+![](./plots/hypercube_distances.png){ width=50% }|  ![](./plots/hypercube_distances1000D.png){ width=50% }
+Każde doświadczenie powtórzyłem 5 razy, losowałem po 100 punktów i liczyłem odległości dla każdego z każdym -
+na osi Y mamy serię uśrednionych wartości odchylenia standardowego i uśrednioną serię średniej odległości między punktami dla konkretnego wymiaru.
 
-> Średnia odległość punktów zmierza do $0.66$
->
-> Odchyelenie standardowe zmierza do $0.46$
->
-> Odchylenie stanowi  $\frac{0.46}{0.66}\cdot 100\% \approx 69\%$ średniej.
+> Widać, że wraz ze wzrostem liczby wymiarów średnia odległość rośnie w skali logarytmicznej.
 
-Wartości te odczytałem z wykresu, więc jest to pewnie dość duże przybliżenie.
 
 ## Punkt 3
 

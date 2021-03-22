@@ -79,14 +79,14 @@ end
 """
 ## Exercise 2
 """
-function plotMeanDistancesBetweenTwoPoints(dimensions, pointsNo, retry = 10)
+function plotMeanDistancesBetweenTwoPoints(dimensions, pointsNo, retry = 5)
     function dist(p1, p2)
         return norm(p2 - p1)
     end
 
     function measureSingle(dimensionsNo)
         points = sampleHypercube(pointsNo, dimensionsNo)
-        distances = [ dist(p1, p2) for p1 = points for p2 = points if p1 != p2 ]
+        distances = [ dist(p1, p2) for p1 = eachrow(points) for p2 = eachrow(points) ]
 
         mn = mean(distances)
         sd = std(distances, mean=mn)
@@ -165,7 +165,7 @@ end
 
 begin
     # plotPointsDistribution(2:10, 10000)
-    plotMeanDistancesBetweenTwoPoints(2:10, 500)
+    plotMeanDistancesBetweenTwoPoints(2:24, 100)
     # plotAngleDistributions(1000, 2, 10000)
     # plotAngleDistributions(1000, 3, 10000)
     # plotAngleDistributions(1000, 5, 10000)
