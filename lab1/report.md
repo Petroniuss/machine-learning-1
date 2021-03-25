@@ -23,7 +23,8 @@ Tutaj będziemy badać odległości między punktami w hipersześcianie.
 Każde doświadczenie powtórzyłem 5 razy, losowałem po 100 punktów i liczyłem odległości dla każdego z każdym -
 na osi Y mamy serię uśrednionych wartości odchylenia standardowego i uśrednioną serię średniej odległości między punktami dla konkretnego wymiaru.
 
-> Widać, że wraz ze wzrostem liczby wymiarów średnia odległość rośnie w skali logarytmicznej.
+> Widać, że wraz ze wzrostem liczby wymiarów średnia odległość rośnie w skali logarytmicznej (lub $~\sqrt(x)$).
+> Myślę, że można o tym wyniku myśleć, że wraz ze wzrostem liczby wymiarów przestrzeń robi się coraz rzadsza - tzn. mamy stałą liczbę punktów, które mają coraz więcej miejsc do wyboru (bo każdy wymiar to dodatkowa swoboda) i jeśli są one losowo rozmieszczone na ograniczonej przestrzeni to ta średnia odległość będzie rosnąć.
 
 
 ## Punkt 3
