@@ -31,6 +31,8 @@ chosen_classifiers = [
     'Euclidean, weighted'
 ]
 
+repeats_num = 15
+
 space_colors = ['orange', 'coral', 'lightgreen']
 cls_colors = ['darkorange', 'crimson', 'green']
 
@@ -135,7 +137,7 @@ def visualize_space(X, y):
     plt.show()
 
 
-def evaluate_k(X, y, clf, repeats=5):
+def evaluate_k(X, y, clf, repeats=repeats_num):
     def eval_single():
         X_train, X_test, y_train, y_test = \
             train_test_split(X, y, test_size=.2)
@@ -161,7 +163,7 @@ def unzip(lst):
     return [list(tpl) for tpl in zip(*lst)]
 
 
-def eval_classifier(X, y, clf_name, repeats=5):
+def eval_classifier(X, y, clf_name, repeats=repeats_num):
     print('-' * 24 + f' {clf_name} ' + '-' * 24)
 
     def eval_single():
