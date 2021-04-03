@@ -14,14 +14,14 @@ n_samples = 1000
 n_dims = 2
 n_classes = 3
 island_fraction = 0.2
-mesh_step_size = .02
+mesh_step_size = .005
 n_island_samples = int(island_fraction * n_samples)
 blobs_params = dict(n_samples=n_samples, n_features=n_dims, random_state=0)
 
 names = [
     'KNN with k = 1 and euclidean metric',
-    'KNN with k = 13 and euclidean metric',
     'KNN with k = 1 and mahalanobis metric',
+    'KNN with k = 13 and euclidean metric',
     'KNN with k = 9, euclidean metric and voting with weighted points',
 ]
 
@@ -43,8 +43,8 @@ cmap_cls = ListedColormap(cls_colors)
 def init_classifiers(X):
     return [
         KNeighborsClassifier(n_neighbors=1),
-        KNeighborsClassifier(n_neighbors=13),
         KNeighborsClassifier(n_neighbors=1, metric='mahalanobis', metric_params={'V': np.cov(X.T)}),
+        KNeighborsClassifier(n_neighbors=13),
         KNeighborsClassifier(n_neighbors=9, weights='distance')]
 
 
@@ -58,7 +58,7 @@ def init_classifier_con_with_name(X, clf_name):
 
 
 def init_data():
-    # red
+    # orange
     x_1 = make_blobs(centers=[[-.5, -.6], [-1, -1]], cluster_std=[.2, .2],
                      **blobs_params)[0]
 
@@ -67,7 +67,7 @@ def init_data():
 
     x = np.concatenate((x_1, x_2), axis=0)
 
-    # orange
+    # red
     y = make_blobs(centers=[[-1.4, -1.0], [-1.8, -1.2]], cluster_std=[.2, .15],
                    **blobs_params)[0]
 
@@ -98,7 +98,6 @@ def visualize_space(X, y):
     """
     classifiers = init_classifiers(X)
     plt.figure(figsize=(27, 9))
-    X = StandardScaler().fit_transform(X)
     x_min, x_max = X[:, 0].min() - .5, X[:, 0].max() + .5
     y_min, y_max = X[:, 1].min() - .5, X[:, 1].max() + .5
     xx, yy = np.meshgrid(np.arange(x_min, x_max, mesh_step_size),
@@ -127,7 +126,7 @@ def visualize_space(X, y):
 
         ax.pcolormesh(xx, yy, Z, cmap=cmap_space, shading='auto')
         ax.scatter(X[:, 0], X[:, 1], c=y, cmap=cmap_cls,
-                   edgecolors='k', alpha=.2)
+                   edgecolors='k', alpha=.05)
 
         ax.set_title(name)
         set_lims()
@@ -227,6 +226,7 @@ def evaluate_classifiers(X, y):
 
 def main():
     X, y = init_data()
+    print('Covariance\n', np.cov(X.T))
     visualize_space(X, y)
     evaluate_classifiers(X, y)
 
