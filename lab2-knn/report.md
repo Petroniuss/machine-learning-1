@@ -18,8 +18,8 @@ Egzemplarzy każdej klasy jest po 1000, za wyjątkiem klasy `pomarańczowej` kt�
 Badamy granicę decyzyjną dla poszczególnych hiperparamterów:
 
 - k-NN z k=1, głosowaniem większościowym i metryką Euklidesa;
-- k-NN z k=13, głosowaniem większościowym i metryką Euklidesa;
 - k-NN z k=1, głosowaniem większościowym i metryką Mahalanobisa;
+- k-NN z k=13, głosowaniem większościowym i metryką Euklidesa;
 - k-NN z k=9, głosowaniem ważonym odległością i metryką Euklidesa.
 
 ![](./imgs/space_1.png)
@@ -30,27 +30,26 @@ Dla k=1:
  przecina dwie główne zgrupowania klasy zielonej.
 - widzimy też różnicę w metrykach między euklidesową, a mahalanobisa:
 $$ d(x, y) = \sqrt{(x - y)^T S^{-1} (x - y) } $$, gdzie S to macierz kowariancji.
-- Jako, że rozłożenie naszych danych było zdecydowanie nierównomierne i przekrzywione, macierz kowariancji:
+- bo rozłożenie naszych danych było nierównomierne i przekrzywione - macierz kowariancji:
 ```
           [[0.36440023 0.16015485]
           [0.16015485 0.13401288]]
 ```
-- todo
- 
-Dla k = 9:
+Metryka Mahalanobisa bierze zatem pod uwagę rozłożenie naszych danych przez kowariancję.
 
-- todo
- 
-Dla k = 13:
+Dla k = 9/13:
 
-- todo
+- tutaj widzimy, że zastosowanie dodawania wag do punktów proporcjonalnych od odwrotności ich odległości powoduje zachownie
+  wysepek ( czy chociaż ich cześci ) innych klas wewnątrz większej.
+- gdy po prostu braliśmy pod uwagę k-sąsiadów wysepki te były tracone z racji na fakt, że były one znaczącą mniejszością wewnątrz większego zbiorowiska innej klasy.
 
+- innymi słowy ważenie punktów jest bardziej czułe na ich nietypowe rozłożenie.
 
 \newpage
 
 ## Ocena sprawności klasyfikatora 
 
-Tu zdecydowałem się przetestować wszystkie powyższe konfiguracje.
+Tu zdecydowałem się przetestować wszystkie powyższe konfiguracje. 
 Procedurę z wyborem k dla poszczególnego klasyfikatora powtarzałem po 15 razy, a później 
 całość (czyli wybór i ocena klasyfikatora) również po 15 razy.
 
