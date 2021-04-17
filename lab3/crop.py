@@ -13,9 +13,6 @@ def crop_images(dataset_dir):
     """
     for path in glob.glob(f'{dataset_dir}/*'):
         img = Image.open(path)
-        img.crop(crop_boundaries)
-        img.save(path)
 
-
-if __name__ == '__main__':
-    crop_images(kazar_dataset_dir)
+        cropped = img.crop(crop_boundaries)
+        cropped.save(path)
