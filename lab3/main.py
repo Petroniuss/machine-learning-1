@@ -1,7 +1,6 @@
 import string
 
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 
 from PIL import Image
 from sklearn.decomposition import PCA
@@ -54,7 +53,24 @@ def normalize_dataset(dataset: list[string, Image]):
     return np.array(labels), np.hstack(normalized_data)
 
 
+def show_dataset(y, X):
+    fig, axes = plt.subplots(3, 8, figsize=(8, 4),
+                             subplot_kw={'xticks': [], 'yticks': []},
+                             gridspec_kw=dict(hspace=0.25, wspace=0.05))
+    fig.suptitle('Dataset')
+
+    for i, ax in enumerate(axes.flat):
+        v = X[:, i]
+        img = convert_img_vector_to_img(v)
+        ax.imshow(img, interpolation='nearest')
+        ax.set_xlabel(y[i])
+
+    plt.show()
+
+
 ### -------------------- PCA -----------------------
+
+
 def mean_img_show(X):
     mean = np.mean(X, axis=1)
     mean_img = convert_img_vector_to_img(mean)
@@ -93,6 +109,7 @@ def main():
     ds = load_dataset(kazar_dataset_dir)
     y, X = normalize_dataset(ds)
 
+    show_dataset(y, X)
     mean_img_show(X)
     principal_components_show(X)
 
