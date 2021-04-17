@@ -7,10 +7,7 @@ import os
 import numpy as np
 
 kazar_dataset_dir = 'datasets/kazar'
-img_normalized_size = (120, 120)
-
-
-# todo we could also crop images from kazar dataset
+img_normalized_size = (100, 100)
 
 def convert_img_to_vector(img):
     return np.asarray(img).reshape((-1, 1))
@@ -64,7 +61,7 @@ def main():
     y, X = normalize_dataset(ds)
     print(y, X.shape)
 
-    mean_image(X).show()
+    mean_image(X).resize((480, 480)).show()
 
 
 if __name__ == '__main__':
