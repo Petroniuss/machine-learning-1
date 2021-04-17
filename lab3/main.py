@@ -1,5 +1,8 @@
 import string
 
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
 from PIL import Image
 from sklearn.decomposition import PCA
 import glob
@@ -9,12 +12,13 @@ import numpy as np
 kazar_dataset_dir = 'datasets/kazar'
 img_normalized_size = (100, 100)
 
+
 def convert_img_to_vector(img):
-    return np.asarray(img).reshape((-1, 1))
+    return np.asarray(img).reshape((-1, 1)) / 255.0
 
 
 def convert_img_vector_to_img(img_vector):
-    M = img_vector.reshape(img_normalized_size)
+    M = img_vector.reshape(img_normalized_size) * 255.0
 
     return Image.fromarray(M)
 
@@ -51,17 +55,46 @@ def normalize_dataset(dataset: list[string, Image]):
 
 
 ### -------------------- PCA -----------------------
-def mean_image(X):
+def mean_img_show(X):
     mean = np.mean(X, axis=1)
-    return convert_img_vector_to_img(mean)
+    mean_img = convert_img_vector_to_img(mean)
+
+    plt.imshow(mean_img.resize((480, 480)))
+    plt.show()
+
+
+def principal_components_show(X):
+    pca = PCA().fit(X.T)
+
+    # plot explained variance
+    plt.plot(np.cumsum(pca.explained_variance_ratio_))
+    plt.xlabel('number of components')
+    plt.ylabel('cumulative explained variance');
+    plt.show()
+
+    fig, axes = plt.subplots(3, 8, figsize=(8, 4),
+                             subplot_kw={'xticks': [], 'yticks': []},
+                             gridspec_kw=dict(hspace=0.25, wspace=0.05))
+    fig.suptitle('Principal Components in Feature Space')
+
+    for i, ax in enumerate(axes.flat):
+        var = pca.explained_variance_ratio_[i] * 100
+        comp = pca.components_[i]
+
+        img = convert_img_vector_to_img(comp / np.max(comp))
+        ax.imshow(img, interpolation='nearest')
+
+        ax.set_xlabel(f'{var:.2f}%')
+
+    plt.show()
 
 
 def main():
     ds = load_dataset(kazar_dataset_dir)
     y, X = normalize_dataset(ds)
-    print(y, X.shape)
 
-    mean_image(X).resize((480, 480)).show()
+    mean_img_show(X)
+    principal_components_show(X)
 
 
 if __name__ == '__main__':
