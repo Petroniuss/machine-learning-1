@@ -1,10 +1,15 @@
+import string
+
 from PIL import Image
+from sklearn.decomposition import PCA
 import glob
 import os
 import numpy as np
 
 kazar_dataset_dir = 'datasets/kazar'
 img_normalized_size = (120, 120)
+
+
 # todo we could also crop images from kazar dataset
 
 def convert_img_to_vector(img):
@@ -31,17 +36,36 @@ def load_dataset(dataset_dir):
     return dataset
 
 
-def normalize_dataset(dataset):
-    transformed = []
+def normalize_dataset(dataset: list[string, Image]):
+    """
+        :return labels - list of strings,
+                X      - images in matrix, each column is an image
+    """
+    labels, normalized_data = [], []
     for class_name, img in dataset:
         resized_img = img.resize(img_normalized_size)
         normalized_img = resized_img.convert('L')
+        img_vector = convert_img_to_vector(normalized_img)
 
-        transformed.append((class_name, normalized_img))
+        labels.append(class_name)
+        normalized_data.append(img_vector)
 
-    return transformed
+    return np.array(labels), np.hstack(normalized_data)
+
+
+### -------------------- PCA -----------------------
+def mean_image(X):
+    mean = np.mean(X, axis=1)
+    return convert_img_vector_to_img(mean)
+
+
+def main():
+    ds = load_dataset(kazar_dataset_dir)
+    y, X = normalize_dataset(ds)
+    print(y, X.shape)
+
+    mean_image(X).show()
 
 
 if __name__ == '__main__':
-    ds = load_dataset(kazar_dataset_dir)
-    ds = normalize_dataset(ds)
+    main()
