@@ -85,7 +85,7 @@ def principal_components_show(X):
     # plot explained variance
     plt.plot(np.cumsum(pca.explained_variance_ratio_))
     plt.xlabel('number of components')
-    plt.ylabel('cumulative explained variance');
+    plt.ylabel('explained variance');
     plt.show()
 
     fig, axes = plt.subplots(3, 8, figsize=(8, 4),
@@ -105,6 +105,57 @@ def principal_components_show(X):
     plt.show()
 
 
+def pca_dimensionality_reduction_show(y, X, n_dims=[16, 4], n_samples=8):
+    imgs = []
+    for i in range(n_samples):
+        v = X[:, i]
+        img = convert_img_vector_to_img(v)
+        imgs.append(img)
+
+    for dims in n_dims:
+        pca = PCA(n_components=dims).fit(X.T)
+        projected = pca.inverse_transform(pca.transform(X.T)).T
+        for i in range(n_samples):
+            v = projected[:, i]
+            img = convert_img_vector_to_img(v)
+            imgs.append(img)
+
+    fig, axes = plt.subplots(3, n_samples, figsize=(8, 4),
+                             subplot_kw={'xticks': [], 'yticks': []},
+                             gridspec_kw=dict(hspace=0.25, wspace=0.05))
+    fig.suptitle('Dimensionality reduction using PCA')
+
+    ys = ['Input data'] + list(map(lambda x: f'{x} features', n_dims))
+
+    for i, ax in enumerate(axes.flat):
+        if i % n_samples == 0:
+            ax.set_ylabel(ys[i // n_samples])
+        ax.imshow(imgs[i], interpolation='nearest')
+        ax.set_xlabel(y[i % n_samples])
+
+    plt.show()
+
+
+def pca_2d(y, X):
+    pca = PCA(2)
+    projected = pca.fit_transform(X.T)
+
+    for class_name in set(y):
+        xs, ys = [], []
+        for i in range(len(y)):
+            if y[i] == class_name:
+                xs.append(projected[i, 0])
+                ys.append(projected[i, 1])
+
+        plt.scatter(xs, ys, label=class_name)
+
+    plt.xlabel('Component 1')
+    plt.ylabel('Component 2')
+    plt.title('Dimensionality reduction to 2D')
+    plt.legend()
+    plt.show()
+
+
 def main():
     ds = load_dataset(kazar_dataset_dir)
     y, X = normalize_dataset(ds)
@@ -112,6 +163,9 @@ def main():
     show_dataset(y, X)
     mean_img_show(X)
     principal_components_show(X)
+
+    pca_dimensionality_reduction_show(y, X)
+    pca_2d(y, X)
 
 
 if __name__ == '__main__':
