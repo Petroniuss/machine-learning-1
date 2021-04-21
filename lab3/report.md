@@ -2,8 +2,8 @@
 
 ## Dane 
 
-Jako dane wybrałem zdjęcia ze sklepu Kazar, po 8 par sneakersów, oxfordów i mokasynów.
-Wszystkie zdjęcia były robione z tego samego ujęcia i miały wymiary 400x280 (po przycięciu tła).
+Jako dane wybrałem zdjęcia ze sklepu Kazar (nie, nie jest to zbiór Zalando MNIST :) ), po 8 par sneakersów, oxfordów i mokasynów.
+Wszystkie zdjęcia były robione z tego samego ujęcia i po przycięciu (aby wycentrować) mają wymiary 400x280.
 
 ![](./datasets/kazar/moccasins_1.jpeg)
 
@@ -15,7 +15,7 @@ trzymałem w macierzy z (100x100 = 10000, 24) - każda kolumna to zdjęcie.
 ## Średnie zdjęcie
 
 Najwyraźniej widać w nim rysy oxfordów i sneakersów.
-Jako że buty na zdjęciach były wycentrowane, nie widzimy zbyt dużego rozmazania ponadto, które bierze się 
+Jako że buty na zdjęciach były wycentrowane, nie widzimy zbyt dużego rozmazania oprócz tego, które bierze się 
 z faktu, że były to zdjęcia różnych butów.
 
 ![](./imgs/mean_img.png)
@@ -48,5 +48,6 @@ dobrze widać ich rysy.
 
 Z wyjątkiem klasy zielonej, która niejako przecina klasę pomarańczową i kilku outlierów, klasy są odseparowane od siebie.
 k-NN całkiem przyzwoicie radzi sobie z wysepkami jednych klas w innych natomiast ciężko powiedzieć jak rozłożyłyba się większa ilość
-danych - już przy tych 24ech egzemplarzach mamy stosunkowo duży ich rozrzut i ciężko stwierdzić czy nie przesadziliśmy z redukcją wymiarów. 
+danych - już przy tych 24ech egzemplarzach mamy stosunkowo duży ich rozrzut i ciężko stwierdzić czy nie przesadziliśmy z redukcją wymiarów 
+(co skądinąd i tak bardzo dobrze wygląda, jak na tylko dwa wymiary!)
 
