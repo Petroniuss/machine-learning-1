@@ -29,12 +29,14 @@ Najlepiej radziło sobie losowanie każdego parametru z rozkładem jednostajnym 
 bo dajemy sobie większą szansę na znalezienie lepszego rozwiązania. 
 
 Wyniki mierzyłem dla k = 5 i powtarzałem 50-krotnie.
+
 ![](./imgs/iterations.png)
 
 Początkowo myślałem, że ciężko to będzie zrobić bez kopiowania 
 kawałka implementacji SKLearna ale po dłuższej analizie kodu źródłowego okazało się, 
 że można po prostu za każdym razem podawać poprzednio uzyskane środki klastrów jeśli tylko ustawimy maksymalną 
 ilość iteracji na 1. 
+
 ![](./imgs/impl.png)
 
 
@@ -44,6 +46,7 @@ Tak wyglądały wartości metryki - wynik jest zastanawiający bo wygląda na to
 nie ma minimum i tak duża ilość klastrów nie ma zbytnio sensu - 
 co wskazuje, że być może zbyt pośpiesznie znormalizowałem te dane do [0, 1]
 i być może zostawiłem jakieś kolumny, które psują wyniki. Prawdę powiedziawszy, sam nie wiem.
+
 ![](./imgs/metric.png)
 
 
@@ -56,6 +59,7 @@ max według indeksu Daviesa-Bouldina.
 
 Dane faktycznie są zgrupowane w klastry nawet po wykonaniu PCA.
 Widać, że grupowanie po kategoriach jest bardzo gruboziarniste i nie oddaje, tego jak dane (co do wartości) faktycznie się rozkładają.
+
 ![](./imgs/clusters_knn.png)
 
 ![](./imgs/clusters_by_categories.png)
