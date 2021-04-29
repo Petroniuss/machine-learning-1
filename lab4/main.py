@@ -89,7 +89,7 @@ def train_kmeans_sample(X):
     return train_kmeans(X, init)
 
 
-def plot_kmeans_iterations(X, n_iters=5):
+def plot_kmeans_iterations(X, n_iters=50):
     algorithms = [
         train_kmeans_plus_plus,
         train_kmeans_random,
@@ -211,7 +211,7 @@ def main():
     df, category_labels, category_names = load_dataset(menu_dataset_dir)
     X = df.values
 
-    plot_kmeans_iterations(X)
+    # plot_kmeans_iterations(X)
     plot_k_means_for_various_k(X)
     plot_k_means_clusters(df)
     plot_categories(X, len(category_names), category_labels)

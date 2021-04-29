@@ -1,53 +1,67 @@
-# Główne składowe butów
+# Restauracja "Pod Złotymi Łukami"
 
 ## Dane 
 
-Jako dane wybrałem zdjęcia ze sklepu Kazar (nie, nie jest to zbiór Zalando MNIST :) ), po 8 par sneakersów, oxfordów i mokasynów.
-Wszystkie zdjęcia były robione z tego samego ujęcia i po przycięciu (aby wycentrować) mają wymiary 400x280.
+Dane, którymi zajmujemy się tutaj zajmujemy to obserwacje reprezentujące dania. 
+W ramach posprzątania danych usunąłem dane nieliczbowe i znormalizowałem je (poszedłem odrobinę na łatwiznę i
+wszystkie zmapowałem do przedziału [0, 1])
 
-![](./datasets/kazar/moccasins_1.jpeg)
+![](./imgs/data.png)
 
-Takie zdjęcia sprowadzałem do wymiarów 100 na 100 i skali szarości, a całość
-trzymałem w macierzy z (100x100 = 10000, 24) - każda kolumna to zdjęcie.
 
-![](./imgs/dataset.png)
+Na tak przygotowanych danych wykonywałem dalszą część zadania.
 
-## Średnie zdjęcie
+## Szacowanie jak "dobra" jest klasteryzacja
 
-Najwyraźniej widać w nim rysy oxfordów i sneakersów.
-Jako że buty na zdjęciach były wycentrowane, nie widzimy zbyt dużego rozmazania oprócz tego, które bierze się 
-z faktu, że były to zdjęcia różnych butów.
+### Metryka
 
-![](./imgs/mean_img.png)
+Wybrałem indeks Daveisa-Bouldina - który bierze pod uwagę stosunki rozrzucenia danych wewnątrz klastra do separacji pomiędzy klastrami
+(krótko: im bardziej ściśnięte dane w klastrze i im dalej od innych klastrów tym lepiej).
 
-## Wektory bazowe - Principal Components
+Im niższa wartość tym lepsza jest klasteryzacja.
 
-![](./imgs/pc_in_feature_space.png)
+## Obserwacja działania algorytmu dla kolejnych iteracji
+Można zobaczyć jak inicjalizacja ma się do zbieżności, a także do osiągane rozwiązania (jako, że łatwo wpaść
+w minima lokalne). Widać, że inicjalizacja k-means++ zazwyczaj zaczynała od lepszego rozwiązania
+(to podejście cechuje też najniższa wariancja) ale prowadziło do gorszego rozwiązania.  
 
-![](./imgs/explained_variance.png)
+Najlepiej radziło sobie losowanie każdego parametru z rozkładem jednostajnym - daje to dużą wariancję ale jest to pożądane
+bo dajemy sobie większą szansę na znalezienie lepszego rozwiązania. 
 
-Wariancja w zależności od ilości wybranych wektorów bazowych (principal components).
+Wyniki mierzyłem dla k = 5 i powtarzałem 50-krotnie.
+![](./imgs/iterations.png)
 
-Możemy zauważyć, że większość wariancji jest opisywana przez zaledwie kilka wektorów bazowych (przy dziesięciu mamy 90%)
-co sugeruje, że pozbycie się tych, które wnoszą najmniej, nie powinno nas kosztować dużo dokładności. 
+Początkowo myślałem, że ciężko to będzie zrobić bez kopiowania 
+kawałka implementacji SKLearna ale po dłuższej analizie kodu źródłowego okazało się, 
+że można po prostu za każdym razem podawać poprzednio uzyskane środki klastrów jeśli tylko ustawimy maksymalną 
+ilość iteracji na 1. 
+![](./imgs/impl.png)
 
-\newpage
 
-## Redukcja wymiarowości
-Redukujemy wymiarowość naszych obserwacji do szesnastu i czterech najważniejszych cech.
+## Wybranie najlepszego K 
 
-![](./imgs/dim_reduction.png)
+Tak wyglądały wartości metryki - wynik jest zastanawiający bo wygląda na to, że
+nie ma minimum i tak duża ilość klastrów nie ma zbytnio sensu - 
+co wskazuje, że być może zbyt pośpiesznie znormalizowałem te dane do [0, 1]
+i być może zostawiłem jakieś kolumny, które psują wyniki. Prawdę powiedziawszy, sam nie wiem.
+![](./imgs/metric.png)
 
-Pokazałem tu tylko 8 zdjęć i sprawdziłem, jak wyglądają po redukcji wymiarów i przed (wertykalnie).
-Przy szesnastu nie widać dużej straty jakości, natomiast przy czterech zdjęcia są wyraźnie rozmyte - natomiast dalej
-dobrze widać ich rysy.
 
-## Redukcja wymiarowości do 2D
+## Wizualizacja rezultatów z wykorzystaniem PCA
 
-![](./imgs/dim_reduction_2d.png)
+Odniosłem wrażenie, że jakoś wyników jest wręcz odwrotna do tego, co dostałem w poprzednim punkcie - 
+najlepsze ( wizualnie ) wyniki odniosłem dla k równego 8 czyli tam gdzie przypadało
+max według indeksu Daviesa-Bouldina.
 
-Z wyjątkiem klasy zielonej, która niejako przecina klasę pomarańczową i kilku outlierów, klasy są odseparowane od siebie.
-k-NN całkiem przyzwoicie radzi sobie z wysepkami jednych klas w innych natomiast ciężko powiedzieć jak rozłożyłyba się większa ilość
-danych - już przy tych 24ech egzemplarzach mamy stosunkowo duży ich rozrzut i ciężko stwierdzić czy nie przesadziliśmy z redukcją wymiarów 
-(co skądinąd i tak bardzo dobrze wygląda, jak na tylko dwa wymiary!)
+
+Dane faktycznie są zgrupowane w klastry nawet po wykonaniu PCA.
+Widać, że grupowanie po kategoriach jest bardzo gruboziarniste i nie oddaje, tego jak dane (co do wartości) faktycznie się rozkładają.
+![](./imgs/clusters_knn.png)
+
+![](./imgs/clusters_by_categories.png)
+
+Myślę, że można było uzyskać znacznie lepsze wyniki wkładając więcej wysiłku w czyszczenie danych.
+
+
+
 
