@@ -34,7 +34,19 @@ def load_dataset(dataset_dir):
 
     df.pop('Category')
     df.pop('Item')
+    df.pop('Total Fat (% Daily Value)')
+    df.pop('Saturated Fat (% Daily Value)')
+    df.pop('Cholesterol (% Daily Value)')
+    df.pop('Sodium (% Daily Value)')
+    df.pop('Carbohydrates (% Daily Value)')
+    df.pop('Dietary Fiber (% Daily Value)')
+
     df['Serving Size'] = df['Serving Size'].apply(serving_size_to_numeric)
+
+    ## dividing by serving size
+    # colsToDivide = list(df.columns.values)
+    # colsToDivide.remove('Serving Size')
+    # df.loc[:, colsToDivide] = df.loc[:, colsToDivide].div(df['Serving Size'], axis=0)
 
     # for now we can map all columns to float within 0.0 - 1.0
     values = df.values
@@ -172,7 +184,7 @@ def plot_pca_2d(X, labels, k, centers=False):
         plt.scatter(projected[:, 0], projected[:, 1], label=labels, c=cs, cmap='rainbow')
 
 
-def plot_k_means_clusters(df, k=8, init='k-means++'):
+def plot_k_means_clusters(df, k=6, init='k-means++'):
     X = df.values
     kmeans = KMeans(n_clusters=k, init=init)
     kmeans.fit(X)
@@ -211,9 +223,9 @@ def main():
     df, category_labels, category_names = load_dataset(menu_dataset_dir)
     X = df.values
 
-    # plot_kmeans_iterations(X)
+    plot_kmeans_iterations(X)
     plot_k_means_for_various_k(X)
-    plot_k_means_clusters(df)
+    plot_k_means_clusters(df, k=6)
     plot_categories(X, len(category_names), category_labels)
 
 
