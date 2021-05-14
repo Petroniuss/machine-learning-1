@@ -5,6 +5,8 @@ from enum import Enum
 
 from typing import List
 
+import numpy as np
+
 
 @dataclass(eq=True, order=True, frozen=True)
 class Position:
@@ -95,11 +97,22 @@ class WitcherScheme(MovementScheme, ABC):
         moves = list(map(lambda p: Movement(p), self.board.possible_moves(state, state.witcher_position)))
         return moves + [witcher_attack_action, Movement(state.witcher_position)]
 
+    def choose_action(self, state: QState):
+        if np.random.uniform(0, 1) < self.experiment_rate:
+            return self.random_action(state)
+        else:
+            return self.best_action(state)
+
     def random_action(self, state):
         actions = self.all_possible_actions(state)
         return actions[random.randint(0, len(actions) - 1)]
 
-    def pick_next_action(self, state: QState) -> Action:
+    def update(self, s1, s2, r, a1, a2):
+        predict = self.Q.get((s1, a1), 0.0)
+        target = r + self.discount_factor * self.Q.get((s2, a2), 0.0)
+        self.Q[(s1, a1)] = predict + self.learning_rate * (target - predict)
+
+    def best_action(self, state: QState) -> Action:
         # if you can't make any other move don't move
         best, best_score = None, None
         for action in self.all_possible_actions(state):
