@@ -1,8 +1,7 @@
 import random
 
-import numpy as np
-
 from qtypes import *
+import numpy as np
 
 
 class Board:
@@ -60,7 +59,7 @@ class Board:
     def possible_moves(self, state: QState, position: Position):
         for dx in range(-1, 2):
             for dy in range(-1, 2):
-                if not (abs(dx) + abs(dy) == 1):
+                if abs(dx) + abs(dy) == 1:
                     next_pos = position + Position(dx, dy)
                     if self.is_accessible(state, next_pos):
                         yield next_pos

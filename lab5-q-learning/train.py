@@ -1,5 +1,5 @@
 from board import Board
-from game import Game
+from env import Env
 from qtypes import *
 
 
@@ -9,12 +9,12 @@ def train(board: Board, striga: Striga, witcher: Witcher, initial_state: QState,
     total_wins = 0
     total_turns = 0
     for i in range(epochs):
-        game = Game(board, initial_state, striga, witcher)
+        game = Env(board, initial_state, striga, witcher)
         while game.game_res is None:
             game.advance()
 
         total_turns += game.turn
-        total_hits += (3 - game.hits)
+        total_hits += game.hits
         if game.game_res == GameResult.WITCHER:
             total_wins += 1
 

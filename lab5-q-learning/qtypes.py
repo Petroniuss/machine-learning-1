@@ -1,3 +1,5 @@
+import random
+from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
 
@@ -44,6 +46,9 @@ class HalfTurnAttack(Action):
     pass
 
 
+witcher_attack_action = HalfTurnAttack()
+
+
 @dataclass(eq=True, order=True, frozen=True)
 class QState:
     witcher_position: Position
@@ -51,6 +56,10 @@ class QState:
 
     def occupied_positions(self) -> List[Position]:
         return [self.witcher_position, self.striga_position]
+
+    def distance(self):
+        dv = self.striga_position - self.witcher_position
+        return abs(dv.x) + abs(dv.y)
 
 
 class MovementScheme:
@@ -66,12 +75,52 @@ class Striga:
         return self.movement_scheme.next_action(state)
 
 
+class WitcherScheme(MovementScheme, ABC):
+    def __init__(self, board,
+                 learning_rate=.1,
+                 experiment_rate=.1,
+                 discount_factor=.1):
+        self.board = board
+        self.learning_rate = learning_rate
+        self.experiment_rate = experiment_rate
+        self.discount_factor = discount_factor
+
+        self.Q = {}
+        self.reward = None
+
+    def set_reward(self, reward):
+        self.reward = reward
+
+    def all_possible_actions(self, state: QState) -> List[Action]:
+        moves = list(map(lambda p: Movement(p), self.board.possible_moves(state, state.witcher_position)))
+        return moves + [witcher_attack_action, Movement(state.witcher_position)]
+
+    def random_action(self, state):
+        actions = self.all_possible_actions(state)
+        return actions[random.randint(0, len(actions) - 1)]
+
+    def pick_next_action(self, state: QState) -> Action:
+        # if you can't make any other move don't move
+        best, best_score = None, None
+        for action in self.all_possible_actions(state):
+            score = self.Q.get((state, action), 0.0)
+            if best_score is None or score >= best_score:
+                best = action
+                best_score = score
+
+        return best
+
+
 class Witcher:
     """
-    We should be able to measure witcher's progress somehow.
+        We should be able to measure witcher's progress somehow.
     """
-    def __init__(self, movement_scheme: MovementScheme):
-        self.movement_scheme = movement_scheme
+
+    def __init__(self, scheme: WitcherScheme):
+        self.scheme = scheme
+
+    def set_reward(self, reward):
+        self.scheme.set_reward(reward)
 
     def next_action(self, state: QState):
-        return self.movement_scheme.next_action(state)
+        return self.scheme.next_action(state)

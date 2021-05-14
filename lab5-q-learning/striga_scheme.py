@@ -25,8 +25,29 @@ class StrigaDeterministicMovementScheme(MovementScheme):
         self.current_p = 0
         self.current_direction = 0
 
+        self.in_castle = 0
+        self.visited = set()
+
+    def random_position(self, state):
+        # discard castle
+        self.visited.discard(self.board.castle_position)
+
+        possible = list(self.visited)
+        n = len(possible) - 1
+        while True:
+            picked = possible[random.randint(0, n)]
+            if self.board.is_accessible(state, picked):
+                return picked
+
     def next_action(self, state: QState):
         current_pos = state.striga_position
+        if current_pos == self.board.castle_position:
+            if self.in_castle >= 3:
+                self.in_castle = 0
+                return Movement(self.random_position(state))
+            else:
+                self.in_castle += 1
+
         dx, dy = self.directions[self.current_direction]
         next_pos = current_pos + Position(dx, dy)
 
@@ -39,6 +60,7 @@ class StrigaDeterministicMovementScheme(MovementScheme):
             return Attack(attacked_positions)
 
         if self.board.is_accessible(state, next_pos):
+            self.visited.add(next_pos)
             return Movement(next_pos)
 
         return self.board.get_any_valid_movement(state.striga_position, state)
@@ -55,6 +77,7 @@ class StrigaRandomMovementScheme(MovementScheme):
         Move in a totally random fashion,
         attack with defined probability 3 fields in one of 4 directions.
     """
+
     def __init__(self, board: Board, p_attack=.25):
         self.board = board
         self.p_attack = p_attack
