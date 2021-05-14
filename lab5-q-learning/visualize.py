@@ -3,11 +3,11 @@ import matplotlib.animation as animation
 
 from qtypes import Obstacle
 
-plt.rcParams["image.cmap"] = "nipy_spectral"
+plt.rcParams["image.cmap"] = "rainbow"
 
-witcher_color = .6
-striga_color = .15
-attacked_color = .1
+witcher_color = .3
+striga_color = .7
+attacked_color = .5
 
 
 def visualize(env, turns=1000):
@@ -23,12 +23,12 @@ def visualize(env, turns=1000):
             return
 
         env.advance()
-        im = env.board.numpy_repr()
+        im = env.board.numpy_repr(.2)
         im[env.state.striga_position.y, env.state.striga_position.x] = striga_color
         im[env.state.witcher_position.y, env.state.witcher_position.x] = witcher_color
         for p in env.attacked_positions:
             if env.board[p] != Obstacle.WALL:
-                im[p.y, p.x] = im[p.y, p.x] + attacked_color
+                im[p.y, p.x] = min(im[p.y, p.x] + attacked_color, striga_color)
 
         env.attacked_positions = []
         if env.game_res is not None:
