@@ -6,9 +6,9 @@ class Env:
     def __init__(self, board: Board,
                  initial_state: QState,
                  striga: Striga, witcher: Witcher,
-                 hit_reward=10.,
-                 approach_reward=5.,
-                 penalty=-20.0):
+                 hit_reward=100.,
+                 approach_reward=2.,
+                 penalty=-1000.0):
         self.board = board
         self.striga = striga
         self.witcher = witcher

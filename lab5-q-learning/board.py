@@ -36,6 +36,15 @@ class Board:
     def filter_within(self, positions: List[Position]):
         return list(filter(lambda p: self.is_within(p), positions))
 
+    def random_valid(self, state: QState):
+        while True:
+            y = random.randint(0, self.height - 1)
+            x = random.randint(0, self.width - 1)
+
+            pos = Position(x, y)
+            if self.is_accessible(state, pos):
+                return pos
+
     def get_any_valid_movement(self, current_position: Position, state: QState):
         moves = list(self.possible_moves(state, current_position))
         if len(moves) < 1:

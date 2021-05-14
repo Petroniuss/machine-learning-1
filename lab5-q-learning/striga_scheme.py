@@ -88,6 +88,8 @@ class StrigaRandomMovementScheme(MovementScheme):
             [-1, 0]
         ]
 
+        self.in_castle = 0
+
     def get_attacked_positions(self, current_position: Position):
         dx, dy = self.directions[np.random.randint(0, 3)]
         positions = calculate_attacked_positions(current_position, dx, dy)
@@ -95,7 +97,15 @@ class StrigaRandomMovementScheme(MovementScheme):
         return list(filter(lambda p: self.board.is_within(p), positions))
 
     def next_action(self, state: QState):
-        if random.uniform(.0, 1.) < self.p_attack:
+        current_pos = state.striga_position
+        if current_pos == self.board.castle_position:
+            if self.in_castle >= 3:
+                self.in_castle = 0
+                return Movement(self.board.random_valid(state))
+            else:
+                self.in_castle += 1
+
+        if np.random.uniform(0, 1) < self.p_attack:
             return Attack(self.get_attacked_positions(state.striga_position))
         else:
             return self.board.get_any_valid_movement(state.striga_position, state)
