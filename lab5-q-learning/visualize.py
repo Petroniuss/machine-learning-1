@@ -46,8 +46,8 @@ def visualize(env, turns=100):
     return ani
 
 
-def show_training_results(hits, wins, lifetime, rewards, time):
-    fig, ax = plt.subplots(2, 2, figsize=(14, 8))
+def show_training_results(hits, wins, lifetime, rewards, time, heatmap, heatmap_start):
+    fig, ax = plt.subplots(3, 2, figsize=(12, 12))
     fig.tight_layout(pad=3.0)
 
     n = len(time) // 10
@@ -65,5 +65,11 @@ def show_training_results(hits, wins, lifetime, rewards, time):
     rewards = uniform_filter1d(rewards, size=n)
     ax[1, 1].plot(time, rewards, 'k')  # row=1, col=1
     ax[1, 1].set_title('Rewards')
+
+    ax[2, 0].imshow(heatmap_start, cmap='hot', interpolation='nearest')
+    ax[2, 0].set_title('Initial HeatMap')
+
+    ax[2, 1].imshow(heatmap, cmap='hot', interpolation='nearest')
+    ax[2, 1].set_title('HeatMap')
 
     plt.show()
