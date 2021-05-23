@@ -10,6 +10,8 @@ from sklearn.model_selection import KFold, RepeatedKFold
 from tabulate import tabulate
 from sklearn.neighbors import KNeighborsClassifier
 
+from matplotlib import pyplot
+
 menu_dataset_dir = 'datasets/covid.csv'
 goal_column = 'If a vaccine to prevent COVID-19 was offered to you today, would you choose to be vaccinated?'
 
@@ -197,11 +199,8 @@ def clean_df(df: pd.DataFrame):
     return df
 
 
-def weight_df(df: pd.DataFrame):
-    pass
 
-
-def k_fold(repeats=5):
+def k_fold(repeats=10):
     return RepeatedKFold(n_splits=5, n_repeats=repeats)
 
 
@@ -226,23 +225,39 @@ def plot_roc_curve(fpr, tpr, clf_name):
     plt.show()
 
 
-def eval_clf(X, y, clf, clf_name, repeats=5):
+def eval_clf(X, y, clf, clf_name, repeats=1, show_importance=False, df=None):
     tprs = []
+    scores = []
     base_fpr = np.linspace(0, 1, 101)
 
     plt.figure(figsize=(5, 5))
 
+    # print mean score
+    model = None
     for train, test in k_fold(repeats).split(X, y):
         model = clf.fit(X[train], y[train])
+        score = model.score(X[test], y[test])
         y_score = model.predict_proba(X[test])
         fpr, tpr, _ = roc_curve(y[test], y_score[:, 1])
 
         plt.plot(fpr, tpr, 'b', alpha=0.05)
         tpr = interp(base_fpr, fpr, tpr)
         tpr[0] = 0.0
+        fpr[0] = 0.0
         tprs.append(tpr)
+        scores.append(score)
 
     tprs = np.array(tprs)
+    scores = np.array(scores)
+
+    # get middle point and use that?
+
+    ## Plot (use tprs and base_fpr)
+    # - precision
+    # - recall
+    # - accuracy
+
+    mean_score = scores.mean(axis=0)
     mean_tprs = tprs.mean(axis=0)
     std = tprs.std(axis=0)
 
@@ -253,10 +268,32 @@ def eval_clf(X, y, clf, clf_name, repeats=5):
     plt.plot([0, 1], [0, 1], 'r--')
     plt.fill_between(base_fpr, tprs_lower, tprs_upper, color='grey', alpha=0.3)
 
-    plt.title(f'{clf_name} - ROC')
+    plt.title(f'{clf_name} - ROC - {100*mean_score:2.2f}%')
     plt.ylabel('True Positive Rate')
     plt.xlabel('False Positive Rate')
     plt.show()
+
+    if show_importance:
+        importance = model.feature_importances_
+        xs = sorted(enumerate(importance), key=lambda x: x[1], reverse=True)
+        values = []
+        names = []
+
+        for i, v in xs[:5]:
+            name = df.columns[i]
+            names.append(name)
+            values.append(v)
+
+        data = pd.DataFrame({
+            "values":  values
+        }, index=names)
+
+        data.plot(kind='barh', figsize=(14, 5))
+        plt.title('Most important features for RF')
+        plt.subplots_adjust(wspace=3.2, left=0.5, right=0.95)
+        plt.xlabel('Feature importance')
+        plt.ylabel('Features')
+        plt.show()
 
 
 def toNumpy(df):
@@ -294,7 +331,7 @@ def eval_knn_subset(df):
     X, y = toNumpy(df)
     knn_clf = knn_classifier()
 
-    eval_clf(X, y, knn_clf, 'kNN - subset', repeats=5)
+    eval_clf(X, y, knn_clf, 'kNN - subset')
     pass
 
 
@@ -302,21 +339,21 @@ def eval_knn_all(df):
     X, y = toNumpy(df)
     knn_clf = knn_classifier()
 
-    eval_clf(X, y, knn_clf, 'kNN - all fields', repeats=5)
+    eval_clf(X, y, knn_clf, 'kNN - all fields')
 
 
 def eval_rf_default(df):
     X, y = toNumpy(df)
     rf_clf = rf_default_classifier()
 
-    eval_clf(X, y, rf_clf, 'RF - default ', repeats=5)
+    eval_clf(X, y, rf_clf, 'RF - default ', show_importance=True, df = df)
 
 
 def eval_rf_all_traits(df):
     X, y = toNumpy(df)
     rf_clf = rf_all_traits_classifier()
 
-    eval_clf(X, y, rf_clf, 'RF - all traits ', repeats=5)
+    eval_clf(X, y, rf_clf, 'RF - all traits ')
 
 
 def main():
@@ -324,9 +361,9 @@ def main():
 
     # eval_knn_all(df)
 
-    eval_knn_subset(df)
+    # eval_knn_subset(df)
 
-    # eval_rf_default(df)
+    eval_rf_default(df)
     #
     # eval_rf_all_traits(df)
 
