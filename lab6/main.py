@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from numpy import interp
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import make_scorer, roc_curve
+from sklearn.metrics import make_scorer, roc_curve, accuracy_score, recall_score, precision_score
 from sklearn.model_selection import KFold, RepeatedKFold
 from tabulate import tabulate
 from sklearn.neighbors import KNeighborsClassifier
@@ -199,7 +199,6 @@ def clean_df(df: pd.DataFrame):
     return df
 
 
-
 def k_fold(repeats=10):
     return RepeatedKFold(n_splits=5, n_repeats=repeats)
 
@@ -225,19 +224,29 @@ def plot_roc_curve(fpr, tpr, clf_name):
     plt.show()
 
 
-def eval_clf(X, y, clf, clf_name, repeats=1, show_importance=False, df=None):
+def eval_clf(X, y, clf, clf_name, repeats=5, show_importance=False, df=None):
     tprs = []
-    scores = []
+    accuracy = []
+    recalls = []
+    precisions = []
+
     base_fpr = np.linspace(0, 1, 101)
 
-    plt.figure(figsize=(5, 5))
+    fig = plt.figure(figsize=(12, 8))
+    ax = fig.add_subplot()
 
     # print mean score
     model = None
     for train, test in k_fold(repeats).split(X, y):
         model = clf.fit(X[train], y[train])
-        score = model.score(X[test], y[test])
         y_score = model.predict_proba(X[test])
+
+        y_predicted_labels = model.predict(X[test])
+
+        score = accuracy_score(y[test], y_predicted_labels)
+        recall = recall_score(y[test], y_predicted_labels)
+        precision = precision_score(y[test], y_predicted_labels)
+
         fpr, tpr, _ = roc_curve(y[test], y_score[:, 1])
 
         plt.plot(fpr, tpr, 'b', alpha=0.05)
@@ -245,19 +254,24 @@ def eval_clf(X, y, clf, clf_name, repeats=1, show_importance=False, df=None):
         tpr[0] = 0.0
         fpr[0] = 0.0
         tprs.append(tpr)
-        scores.append(score)
+
+        accuracy.append(score)
+        precisions.append(precision)
+        recalls.append(recall)
 
     tprs = np.array(tprs)
-    scores = np.array(scores)
+    accuracy = np.array(accuracy)
+    recalls = np.array(recalls)
+    precisions = np.array(precisions)
 
-    # get middle point and use that?
+    ax.text(0.95, 0.01, f'Recall: {recalls.mean():.2f}\u00B1{recalls.std():.2f}, '
+                        f'Accuracy: {accuracy.mean():.2f}\u00B1{accuracy.std():.2f}, '
+                        f'Precision: {precisions.mean():.2f}\u00B1{precisions.std():.2f}',
+            verticalalignment='bottom', horizontalalignment='right',
+            transform=ax.transAxes,
+            color='green', fontsize=18)
 
-    ## Plot (use tprs and base_fpr)
-    # - precision
-    # - recall
-    # - accuracy
-
-    mean_score = scores.mean(axis=0)
+    mean_score = accuracy.mean(axis=0)
     mean_tprs = tprs.mean(axis=0)
     std = tprs.std(axis=0)
 
@@ -268,9 +282,9 @@ def eval_clf(X, y, clf, clf_name, repeats=1, show_importance=False, df=None):
     plt.plot([0, 1], [0, 1], 'r--')
     plt.fill_between(base_fpr, tprs_lower, tprs_upper, color='grey', alpha=0.3)
 
-    plt.title(f'{clf_name} - ROC - {100*mean_score:2.2f}%')
-    plt.ylabel('True Positive Rate')
-    plt.xlabel('False Positive Rate')
+    plt.title(f'{clf_name} - ROC', fontsize=36)
+    plt.ylabel('True Positive Rate', fontsize=24)
+    plt.xlabel('False Positive Rate', fontsize=24)
     plt.show()
 
     if show_importance:
@@ -285,7 +299,7 @@ def eval_clf(X, y, clf, clf_name, repeats=1, show_importance=False, df=None):
             values.append(v)
 
         data = pd.DataFrame({
-            "values":  values
+            "values": values
         }, index=names)
 
         data.plot(kind='barh', figsize=(14, 5))
@@ -324,7 +338,9 @@ def eval_knn_subset(df):
          'HIGH BLOOD PRESSURE',
          'OBESITY',
          'WEEKEND IMMUNE SYSTEM'
-         ] + [goal_column]
+         ] + ['In last 24 Hours When Ever you stepped outside your personal premises, How often have you used '
+              'mask/face cover.'] + \
+        [goal_column]
 
     df = df[cols_subset]
 
@@ -346,7 +362,7 @@ def eval_rf_default(df):
     X, y = toNumpy(df)
     rf_clf = rf_default_classifier()
 
-    eval_clf(X, y, rf_clf, 'RF - default ', show_importance=True, df = df)
+    eval_clf(X, y, rf_clf, 'RF - default ', show_importance=True, df=df)
 
 
 def eval_rf_all_traits(df):
@@ -359,13 +375,13 @@ def eval_rf_all_traits(df):
 def main():
     df = clean_df(load_dataset(menu_dataset_dir))
 
-    # eval_knn_all(df)
+    eval_knn_all(df)
 
-    # eval_knn_subset(df)
+    eval_knn_subset(df)
 
     eval_rf_default(df)
-    #
-    # eval_rf_all_traits(df)
+
+    eval_rf_all_traits(df)
 
 
 if __name__ == '__main__':
