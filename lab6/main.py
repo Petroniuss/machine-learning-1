@@ -213,7 +213,7 @@ def rf_default_classifier():
     return RandomForestClassifier(n_estimators=100)
 
 
-def rf_classifier():
+def rf_all_traits_classifier():
     return RandomForestClassifier(n_estimators=100, bootstrap=False, max_features=None)
 
 
@@ -259,28 +259,76 @@ def eval_clf(X, y, clf, clf_name, repeats=5):
     plt.show()
 
 
-def main():
-    random.seed(3)
-    df = load_dataset(menu_dataset_dir)
-    df = clean_df(df)
-
-    # not sure if it makes sense to normalize the data
-    # scaler = preprocessing.StandardScaler().fit(df.values)
-    # df[list(df)] = scaler.transform(df.values)
-    # print(df[goal_column].value_counts())
-
+def toNumpy(df):
     X, y = df.drop(columns=[goal_column]), df[goal_column]
     X = np.asarray(X, dtype=np.float64)
 
     # Let's revert what we're trying to predict :)
     y = 1 - np.asarray(y, dtype=np.float64)
 
-    knn_clf = knn_classifier()
-    eval_clf(X, y, knn_clf, 'kNN', repeats=5)
-    # print(mean, std)
+    return X, y
 
-    # rf_clf = rf_classifier()
-    # eval_clf(X, y, rf_clf, 'RF', repeats=5)
+
+def eval_knn_subset(df):
+    cols_subset = \
+        ['EYE PAIN',
+         'CHEST PAIN',
+         'SOAR THROAT',
+         'STUFFY/RUNNY NOSE',
+         'WEAKNESS FATIGUE',
+         'Aches/ Muscle Pain',
+         'Headache',
+         'Cough',
+         'Difficulty in Breathing',
+         'Change in Sleep Cycle'
+         ] + \
+        ['AGE BAND',
+         'ASTHAMA',
+         'HIGH BLOOD PRESSURE',
+         'OBESITY',
+         'WEEKEND IMMUNE SYSTEM'
+         ] + [goal_column]
+
+    df = df[cols_subset]
+
+    X, y = toNumpy(df)
+    knn_clf = knn_classifier()
+
+    eval_clf(X, y, knn_clf, 'kNN - subset', repeats=5)
+    pass
+
+
+def eval_knn_all(df):
+    X, y = toNumpy(df)
+    knn_clf = knn_classifier()
+
+    eval_clf(X, y, knn_clf, 'kNN - all fields', repeats=5)
+
+
+def eval_rf_default(df):
+    X, y = toNumpy(df)
+    rf_clf = rf_default_classifier()
+
+    eval_clf(X, y, rf_clf, 'RF - default ', repeats=5)
+
+
+def eval_rf_all_traits(df):
+    X, y = toNumpy(df)
+    rf_clf = rf_all_traits_classifier()
+
+    eval_clf(X, y, rf_clf, 'RF - all traits ', repeats=5)
+
+
+def main():
+    df = clean_df(load_dataset(menu_dataset_dir))
+
+    # eval_knn_all(df)
+
+    eval_knn_subset(df)
+
+    # eval_rf_default(df)
+    #
+    # eval_rf_all_traits(df)
 
 
 if __name__ == '__main__':
