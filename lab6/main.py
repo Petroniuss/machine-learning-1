@@ -1,16 +1,13 @@
-import random
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from numpy import interp
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import make_scorer, roc_curve, accuracy_score, recall_score, precision_score
-from sklearn.model_selection import KFold, RepeatedKFold
+from sklearn.metrics import roc_curve, accuracy_score, recall_score, precision_score
+from sklearn.model_selection import RepeatedKFold
 from tabulate import tabulate
 from sklearn.neighbors import KNeighborsClassifier
 
-from matplotlib import pyplot
 
 menu_dataset_dir = 'datasets/covid.csv'
 goal_column = 'If a vaccine to prevent COVID-19 was offered to you today, would you choose to be vaccinated?'
@@ -199,7 +196,7 @@ def clean_df(df: pd.DataFrame):
     return df
 
 
-def k_fold(repeats=10):
+def k_fold(repeats):
     return RepeatedKFold(n_splits=5, n_repeats=repeats)
 
 
@@ -224,7 +221,7 @@ def plot_roc_curve(fpr, tpr, clf_name):
     plt.show()
 
 
-def eval_clf(X, y, clf, clf_name, repeats=5, show_importance=False, df=None):
+def eval_clf(X, y, clf, clf_name, repeats=15, show_importance=False, df=None):
     tprs = []
     accuracy = []
     recalls = []
